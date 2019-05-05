@@ -3,10 +3,20 @@ import csv
 
 # Path to collect data from the Resources folder
 budgetData = os.path.join('budget_data.csv')
-#budgetData = os.path.join('C:/Users/Ujwala/Desktop/Washu/Python/python-challenge/pyBank/budget_data.csv')
-#Get avarage of the changes in profit/losses 
 
+count,count1=0,0
+totalAmount=0
+totalchange=0
+track_change=0
+Month=""
+Dates=[]
+changeInPL=[]
+pl_List=[]
+line=""
 
+def output(lines):
+    global line
+    line=f'{line}\n{lines}'
 
 # Read from the CSV file
 with open(budgetData, 'r') as csvfile:
@@ -14,47 +24,59 @@ with open(budgetData, 'r') as csvfile:
     # Split the data on commas
     csvreader = csv.reader(csvfile, delimiter=',')
 
-    header = next(csvreader,None)
-    count=0
-    count1=0
-    totalAmount=0
-    totalchange=0
-    track_change=0
-    Month=""
-    changeInPL=[]
-    pl_List=[]
+    header = next(csvreader,None)  #skip the header
+    
 
-    Months=['Jan','Feb','Mar','Apr','May','Jun','Jul',
+    Months=['Jan','Feb','Mar','Apr','May','Jun','Jul',  # create a Month array
      'Aug','Sep','Oct','Nov','Dec']
        
-    for row in csvreader:
+    for row in csvreader:            #read CSV data
           
-        date=((row[0].split('-')))
-        Month= (date[0])
+        date=((row[0].split('-')))            #get the date and split it 
+        Dates.append(date)                  
+        Month= (date[0])                     # extract Month from Date object
          
-        if Month in Months:
-            count= count+1    
-            totalAmount= totalAmount + int(row[1])
-        pl_List.append(row[1])
+        if Month in Months:                  #check if Month of that row is in Months list
+            count +=1                        # countercount the no of months
+            totalAmount= totalAmount + int(row[1])     #count the total amount by adding amount from each row
+        pl_List.append(row[1])               
         
     for i in range(len(pl_List)-1):
-        count1= count1+1
-        track_change=(int(pl_List[i+1])-int(pl_List[i]))
-        changeInPL.append(track_change)
-        totalchange=totalchange + int(changeInPL[i])
-                
-    print(f'Length of pl :{len(pl_List)}')  
-    print(f'Total Change:{totalchange}')
-    print(f'Total count:{count1}')   
-    avarage = float(totalchange/count1)
+        count1 +=1
+        changeInPL.append(int(pl_List[i+1])-int(pl_List[i]))
+        totalchange += int(changeInPL[i])
+     
+    avarage =str(round(totalchange/count1,2))
+    MaxChange=max(changeInPL)
+    MinChange=min(changeInPL)
+    indexofMaxChange=changeInPL.index(MaxChange)+int(1)
+    dateofMax=Dates[indexofMaxChange]
+    indexOfMinChange=changeInPL.index(MinChange)+int(1)
+    dateOfMin=Dates[indexOfMinChange]
+
    
-    print('----------------------------')        
-    print ("Finanacial Analysis")
-    print('----------------------------')
-    print(f'Total Months:  {count}')
-    print(f'Total: ${totalAmount}')
-    print(f'Avarage Change:' "%.2f" % avarage)
-    print(f'Greatest Increase :{max(changeInPL)}')
-    print(f'Greatest Decrease :{min(changeInPL)}')
+    
+    output(f"""
+     ---------------------------- \n      
+     Finanacial Analysis \n
+     ----------------------------\n
+     Total Months:  ${count}\n
+     Total: ${totalAmount}\n
+     Avarage Change: ${avarage}\n
+     Greatest Increase in profits :{dateofMax}  {MaxChange}\n
+     Greatest Decrease in profits :{dateOfMin}  {MinChange} \n
+    --------------------------------------------------------""")
+
+output_file = os.path.join('Budget_data_Finanacial_Analysis.txt')
+#  Open the output file
+with open(output_file, "w") as datafile:
+    datafile.write(line)
+
+
+     
+
+    
+
+    
 
 
